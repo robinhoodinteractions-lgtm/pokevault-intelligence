@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+PROJECT_DIR="${1:-$PWD}"
+PROJECT_DIR="$(cd "$PROJECT_DIR" 2>/dev/null && pwd)" || {
+  echo "ERROR: Website folder does not exist." >&2; exit 1;
+}
+[[ -f "$PROJECT_DIR/index.html" ]] || {
+  echo "ERROR: index.html not found in $PROJECT_DIR" >&2; exit 1;
+}
+for cmd in node npm; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "ERROR: $cmd is required." >&2
+    echo "Termux: pkg install nodejs"
+    echo "Ubuntu: sudo apt update && sudo apt install -y nodejs npm"
+    exit 1
+  }
+done
+
+NETLIFY=(npx --yes netlify-cli)
+echo "PokéVault Intelligence deployment"
+echo "Folder: $PROJECT_DIR"
+echo "Checking Netlify authentication..."
+if ! "${NETLIFY[@]}" status; then
+  echo "Please complete Netlify login."
+  "${NETLIFY[@]}" login
+  "${NETLIFY[@]}" status
+fi
+echo "Choose: 1) production  2) draft preview"
+read -r -p "Choice [1/2]: " choice
+case "$choice" in
+  1)
+    read -r -p "This uploads to production. Type DEPLOY to continue: " confirm
+    [[ "$confirm" == "DEPLOY" ]] || { echo "Cancelled."; exit 0; }
+    "${NETLIFY[@]}" deploy --prod --dir="$PROJECT_DIR"
+    ;;
+  2) "${NETLIFY[@]}" deploy --dir="$PROJECT_DIR" ;;
+  *) echo "Invalid choice."; exit 1 ;;
+esac
+echo "Netlify CLI finished. Verify the URL and status in the output above."
