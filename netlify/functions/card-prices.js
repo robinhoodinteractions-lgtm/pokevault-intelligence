@@ -56,6 +56,16 @@ function normalizeQuote(payload, requestedId, checkedAt) {
 
   if (!candidate) return null;
 
+  const trends = {};
+  for (const window of ['days_7', 'days_30', 'days_90']) {
+    const trend = candidate.trends && candidate.trends[window];
+    if (!trend || typeof trend !== 'object') continue;
+    const clean = {};
+    if (typeof trend.percent_change === 'number' && Number.isFinite(trend.percent_change)) clean.percent_change = trend.percent_change;
+    if (typeof trend.price_change === 'number' && Number.isFinite(trend.price_change)) clean.price_change = trend.price_change;
+    if (Object.keys(clean).length) trends[window] = clean;
+  }
+
   return {
     amount: candidate.market,
     currency: candidate.currency,
@@ -63,7 +73,8 @@ function normalizeQuote(payload, requestedId, checkedAt) {
     basis: 'Scrydex raw market estimate',
     source: 'Scrydex',
     checked_at: checkedAt,
-    provider_as_of: null
+    provider_as_of: null,
+    trends
   };
 }
 
