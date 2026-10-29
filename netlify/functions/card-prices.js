@@ -39,22 +39,24 @@ function normalizeQuote(payload, requestedId, checkedAt) {
   const card = extractCard(payload);
   if (!card || card.id !== requestedId || !Array.isArray(card.variants)) return null;
 
-  const prices = card.variants.flatMap(variant =>
-    variant && Array.isArray(variant.prices) ? variant.prices : []
-  );
+  // Keep the variant attached to its price. If the provider returns valid
+  // prices for multiple variants, refuse to choose one arbitrarily.
+  const candidates = card.variants.flatMap(variant => {
+    if (!variant || typeof variant.name !== 'string' || !Array.isArray(variant.prices)) return [];
+    return variant.prices
+      .filter(price =>
+        price &&
+        price.type === 'raw' &&
+        price.condition === 'NM' &&
+        price.is_error !== true &&
+        validMarket(price.market) &&
+        validCurrency(price.currency)
+      )
+      .map(price => ({ ...price, variant_name: variant.name }));
+  });
 
-  // This quote represents raw, Near Mint pricing only. Do not mix variants,
-  // conditions, currencies, or graded-card estimates into one figure.
-  const candidate = prices.find(price =>
-    price &&
-    price.type === 'raw' &&
-    price.condition === 'NM' &&
-    price.is_error !== true &&
-    validMarket(price.market) &&
-    validCurrency(price.currency)
-  );
-
-  if (!candidate) return null;
+  if (candidates.length !== 1) return null;
+  const candidate = candidates[0];
 
   const trends = {};
   for (const window of ['days_7', 'days_30', 'days_90']) {
@@ -70,6 +72,7 @@ function normalizeQuote(payload, requestedId, checkedAt) {
     amount: candidate.market,
     currency: candidate.currency,
     condition: 'NM',
+    variant: candidate.variant_name,
     basis: 'Scrydex raw market estimate',
     source: 'Scrydex',
     checked_at: checkedAt,
