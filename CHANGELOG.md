@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2 — Form reliability, research export, and data transparency
+- Added a validated native Formspree submission fallback when the asynchronous form request fails or times out; form-provider acceptance is not described as confirmed email delivery.
+- Corrected watchlist persistence status, deduplicated legacy entries, prevented duplicate add actions, and enforced a 500-item limit.
+- Expanded CSV exports with card identity, category, and any currently valid provider quote snapshot, with blank values for unavailable quotes and safe CSV escaping.
+- Linked official Scrydex pricing/variant/history documentation and clarified that provider retrieval time is not the underlying quote observation date.
+- Added regression tests for form fallback, text escaping, storage failure, CSV quoting, and data-source disclosures.
+
 ## 1.1.1 — Derived research coverage analytics
 - Added category breakdowns for the curated catalogue, current valid provider-quote coverage, and the user's local watchlist.
 - Calculated all chart values from actual catalogue records, saved watchlist items, and validated provider quotes; no market-wide counts or performance figures are inferred.
