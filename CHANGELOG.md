@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 — Derived research coverage analytics
+- Added category breakdowns for the curated catalogue, current valid provider-quote coverage, and the user's local watchlist.
+- Calculated all chart values from actual catalogue records, saved watchlist items, and validated provider quotes; no market-wide counts or performance figures are inferred.
+- Added tests for category grouping, quote coverage, unmatched saved items, and empty states.
+- Kept historical returns and PokéVault-owned price history explicitly unavailable until a dated observation store is implemented.
+
 ## 1.1.0 — research dashboard hardening
 
 - Added a research dashboard with curated catalogue count, valid quote coverage, and local watchlist count.
