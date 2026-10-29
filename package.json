@@ -1,6 +1,6 @@
 {
   "name": "pokevault-intelligence",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Independent Pokémon TCG collector research dashboard",
   "scripts": {
@@ -11,7 +11,7 @@
     "build": "node scripts/build.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "license": "UNLICENSED"
 }
