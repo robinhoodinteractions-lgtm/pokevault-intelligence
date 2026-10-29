@@ -6,6 +6,7 @@ Independent Pokémon TCG collector research workspace. Preserve the existing bla
 ## Current implementation
 
 - Responsive single-page interface with a curated card research catalogue.
+- Research dashboard charts for curated catalogue categories, current valid quote coverage, and the user's local watchlist; these are record counts, not market-wide metrics or returns.
 - Client-side search, category and quote-availability filters, and sorting.
 - Watchlist saved in this browser's localStorage with remove, clear and CSV export.
 - Netlify Function adapter for Scrydex raw Near Mint market estimates. It is server-side and does not expose API credentials to browser code.
