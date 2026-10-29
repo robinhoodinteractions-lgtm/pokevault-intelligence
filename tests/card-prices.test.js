@@ -9,7 +9,7 @@ function response(payload, ok = true, status = 200) {
 }
 
 function cardPayload(id = 'base1-4', prices = [{
-  type: 'raw', condition: 'NM', market: 123.45, currency: 'USD', low: 100
+  type: 'raw', condition: 'NM', market: 123.45, currency: 'USD', low: 100, trends: { days_7: { percent_change: -1.5, price_change: -2.1 }, days_30: { percent_change: 3, price_change: 4.25 }, days_90: { percent_change: 'bad', price_change: Infinity } }
 }]) {
   return { data: { id, name: 'Example card', variants: [{ name: 'unlimitedHolofoil', prices }] } };
 }
@@ -33,7 +33,8 @@ test('normalizes a matching NM raw quote with source and retrieval timestamp', (
     basis: 'Scrydex raw market estimate',
     source: 'Scrydex',
     checked_at: '2026-10-29T00:00:00.000Z',
-    provider_as_of: null
+    provider_as_of: null,
+    trends: { days_7: { percent_change: -1.5, price_change: -2.1 }, days_30: { percent_change: 3, price_change: 4.25 } }
   });
 });
 
@@ -132,4 +133,16 @@ test('provider failures are represented as unavailable rather than fake zeroes',
     if (oldKey === undefined) delete process.env.SCRYDEX_API_KEY; else process.env.SCRYDEX_API_KEY = oldKey;
     if (oldTeam === undefined) delete process.env.SCRYDEX_TEAM_ID; else process.env.SCRYDEX_TEAM_ID = oldTeam;
   }
+});
+
+test('keeps only finite provider trend values and never invents missing windows', () => {
+  const quote = normalizeQuote(cardPayload(), 'base1-4', 'now');
+  assert.deepEqual(quote.trends, {
+    days_7: { percent_change: -1.5, price_change: -2.1 },
+    days_30: { percent_change: 3, price_change: 4.25 }
+  });
+  const noTrends = normalizeQuote(cardPayload('base1-4', [{
+    type: 'raw', condition: 'NM', market: 10, currency: 'USD'
+  }]), 'base1-4', 'now');
+  assert.deepEqual(noTrends.trends, {});
 });
