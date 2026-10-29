@@ -30,6 +30,7 @@ test('normalizes a matching NM raw quote with source and retrieval timestamp', (
     amount: 123.45,
     currency: 'USD',
     condition: 'NM',
+    variant: 'unlimitedHolofoil',
     basis: 'Scrydex raw market estimate',
     source: 'Scrydex',
     checked_at: '2026-10-29T00:00:00.000Z',
@@ -145,4 +146,12 @@ test('keeps only finite provider trend values and never invents missing windows'
     type: 'raw', condition: 'NM', market: 10, currency: 'USD'
   }]), 'base1-4', 'now');
   assert.deepEqual(noTrends.trends, {});
+});
+
+test('refuses to select arbitrarily between multiple priced variants', () => {
+  const payload = { data: { id: 'base1-4', variants: [
+    { name: 'unlimitedHolofoil', prices: [{ type: 'raw', condition: 'NM', market: 10, currency: 'USD' }] },
+    { name: 'firstEditionShadowlessHolofoil', prices: [{ type: 'raw', condition: 'NM', market: 20, currency: 'USD' }] }
+  ] } };
+  assert.equal(normalizeQuote(payload, 'base1-4', 'now'), null);
 });
