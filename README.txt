@@ -42,7 +42,7 @@ If your folder path differs, run `pwd` and `ls` first and change into your actua
 
 ## Netlify configuration
 
-Netlify reads `netlify.toml`, publishes the repository root and discovers functions in `netlify/functions`. Configure the two Scrydex variables in Netlify's environment settings only if live pricing is desired. The inquiry form requires a real submission test and verification in Formspree's submission dashboard.
+Netlify reads `netlify.toml`, runs `npm run build`, publishes only the generated `dist/` directory, and discovers functions in `netlify/functions`. This keeps project documentation, tests, scripts, and environment examples out of the published static directory. Configure the two Scrydex variables in Netlify's environment settings only if live pricing is desired. The inquiry form requires a real submission test and verification in Formspree's submission dashboard.
 
 Use a deploy preview after the feature branch is pushed and connected to Netlify. Production deploys should wait until preview, form delivery and pricing credentials have been verified.
 
