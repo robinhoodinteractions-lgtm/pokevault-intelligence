@@ -111,8 +111,8 @@ const cards = [
 const $ = s => document.querySelector(s);
 let watch = [];
 let quotes = {};
-try { const saved = JSON.parse(localStorage.getItem("pokevault-watchlist-v1") || "[]"); if (Array.isArray(saved)) watch = saved.filter(x => typeof x === "string").slice(0,500); } catch (_) { watch = []; }
-function persistWatch(){ try { localStorage.setItem("pokevault-watchlist-v1", JSON.stringify(watch)); } catch (_) { $("#watchStatus").textContent = "Browser storage is unavailable; this shortlist may not persist."; } }
+try { const saved = JSON.parse(localStorage.getItem("pokevault-watchlist-v1") || "[]"); if (Array.isArray(saved)) watch = [...new Set(saved.filter(x => typeof x === "string"))].slice(0,500); } catch (_) { watch = []; }
+function persistWatch(){ try { localStorage.setItem("pokevault-watchlist-v1", JSON.stringify(watch)); return true; } catch (_) { $("#watchStatus").textContent = "Browser storage is unavailable; this shortlist may not persist."; return false; } }
 function hasUsableQuote(price){
  return !!price && typeof price.amount === "number" && Number.isFinite(price.amount) && price.amount >= 0 && typeof price.currency === "string" && /^[A-Z]{3}$/.test(price.currency);
 }
@@ -140,7 +140,7 @@ function renderCatalogue(){
   const meta=valid ? escapeHtml(p.basis||"Provider market estimate")+" · retrieved "+escapeHtml(p.checked_at||"time unavailable")+" · provider update "+escapeHtml(p.provider_as_of||"not supplied")+" · "+escapeHtml(p.condition||"condition not specified")+" · variant "+escapeHtml(p.variant||"not identified")+" · "+escapeHtml(p.source||"Provider") : "No verified quote returned. No estimate substituted.";
   const trendSummary=valid && p.trends ? Object.entries(p.trends).map(([window,trend])=>typeof trend.percent_change==="number" && Number.isFinite(trend.percent_change) ? escapeHtml(window.replace("days_","")+"d")+": "+(trend.percent_change>0?"+":"")+trend.percent_change.toFixed(2)+"%" : "").filter(Boolean).join(" · ") : "";
   const trendText=trendSummary ? "Provider trend: "+trendSummary : "Provider trend data not supplied.";
-  return '<article class="card item"><span class="tag">'+escapeHtml(c.category)+'</span><h3>'+escapeHtml(c.name)+'</h3><p class="meta">'+escapeHtml(c.set)+' · '+escapeHtml(c.number)+'</p><p>'+escapeHtml(c.detail)+'</p><p class="price">'+price+'</p><p class="meta">'+meta+'</p><p class="meta">'+trendText+'</p><button type="button" data-add="'+escapeHtml(c.name+" — "+c.set+" "+c.number)+'">Add to watchlist</button></article>';
+  const itemKey=c.name+" — "+c.set+" "+c.number, saved=watch.includes(itemKey);\n  return '<article class="card item"><span class="tag">'+escapeHtml(c.category)+'</span><h3>'+escapeHtml(c.name)+'</h3><p class="meta">'+escapeHtml(c.set)+' · '+escapeHtml(c.number)+'</p><p>'+escapeHtml(c.detail)+'</p><p class="price">'+price+'</p><p class="meta">'+meta+'</p><p class="meta">'+trendText+'</p><button type="button" data-add="'+escapeHtml(itemKey)+'"'+(saved?' disabled aria-disabled="true"':'')+'><span>'+(saved?"In watchlist":"Add to watchlist")+'</span></button></article>';
  }).join(""):'<p class="empty">No matching cards found. Try changing your filters.</p>';
 }
 function categoryGroup(card){
@@ -206,9 +206,9 @@ function renderWatch(){
  $("#watchCount").textContent=`Watchlist: ${watch.length} item${watch.length===1?"":"s"} saved in this browser`;
  $("#watchItems").innerHTML=watch.length?watch.map(n=>`<article class="card"><h3>${escapeHtml(n)}</h3><button type="button" data-remove="${escapeHtml(n)}">Remove</button></article>`).join(""):'<p class="empty">No cards saved yet. Add an item from the showcase above.</p>';
 }
-$("#catalogue").addEventListener("click",e=>{const n=e.target.dataset.add;if(n&&!watch.includes(n)){watch.push(n);persistWatch();renderWatch();updateDashboard();e.target.textContent="Added";$("#watchStatus").textContent="Saved on this device.";}});
-$("#watchItems").addEventListener("click",e=>{const n=e.target.dataset.remove;if(n){watch=watch.filter(x=>x!==n);persistWatch();renderWatch();updateDashboard();$("#watchStatus").textContent="Removed from shortlist.";}});
-$("#clearWatch").addEventListener("click",()=>{watch=[];persistWatch();renderWatch();updateDashboard();$("#watchStatus").textContent="Shortlist cleared.";});
+$("#catalogue").addEventListener("click",e=>{const button=e.target.closest("[data-add]"),n=button&&button.dataset.add;if(!n)return;if(watch.includes(n)){ $("#watchStatus").textContent="Already saved to your shortlist.";return;}if(watch.length>=500){$("#watchStatus").textContent="Your shortlist has reached the 500-item safety limit.";return;}watch.push(n);const stored=persistWatch();renderWatch();updateDashboard();renderCatalogue();$("#watchStatus").textContent=stored?"Saved on this device.":"Added for this page only; browser storage is unavailable, so it may not persist.";});
+$("#watchItems").addEventListener("click",e=>{const button=e.target.closest("[data-remove]"),n=button&&button.dataset.remove;if(n){watch=watch.filter(x=>x!==n);const stored=persistWatch();renderWatch();updateDashboard();$("#watchStatus").textContent=stored?"Removed from shortlist.":"Removed for this page only; browser storage is unavailable.";}});
+$("#clearWatch").addEventListener("click",()=>{watch=[];const stored=persistWatch();renderWatch();updateDashboard();$("#watchStatus").textContent=stored?"Shortlist cleared.":"Shortlist cleared for this page only; browser storage is unavailable.";});
 $("#exportWatch").addEventListener("click",()=>{if(!watch.length){$("#watchStatus").textContent="Add at least one item before exporting.";return;}const csv="item\r\n"+watch.map(x=>'"'+x.replace(/"/g,'""')+'"').join("\r\n");const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="pokevault-shortlist.csv";a.click();URL.revokeObjectURL(url);$("#watchStatus").textContent="Shortlist CSV exported.";});
 $("#search").addEventListener("input",renderCatalogue);$("#sort").addEventListener("change",renderCatalogue);$("#categoryFilter").addEventListener("change",renderCatalogue);$("#priceFilter").addEventListener("change",renderCatalogue);
 $("#year").textContent=new Date().getFullYear();renderCatalogue();renderWatch();updateDashboard();loadPrices();
