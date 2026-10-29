@@ -31,7 +31,7 @@
     <p class="eyebrow">A better-informed collection</p>
     <div class="big">Observe.<br>Compare.<br>Decide.</div>
     <p>Use a watchlist to organize cards you want to research. Listings below are illustrative examples, not live market quotes.</p>
-    <div class="watchlist" id="watchCount">Watchlist: 0 items saved in this browser session</div>
+    <div class="watchlist" id="watchCount">Watchlist: 0 items saved in this browser</div>
   </aside>
 </section>
 <section class="section" id="research"><div class="wrap">
@@ -186,7 +186,7 @@ function updateAnalytics(){
 }
 function updateDashboard(){
  $("#metricCards").textContent=String(cards.length);
- $("#metricQuotes").textContent=String(Object.values(quotes).filter(hasUsableQuote).length);
+ $("#metricQuotes").textContent=String(cards.filter(card=>hasUsableQuote(quotes[card.id])).length);
  $("#metricWatch").textContent=String(watch.length);
  updateAnalytics();
 }
@@ -203,7 +203,7 @@ async function loadPrices(){
 }
 function escapeHtml(s){return s.replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 function renderWatch(){
- $("#watchCount").textContent=`Watchlist: ${watch.length} item${watch.length===1?"":"s"} saved in this browser session`;
+ $("#watchCount").textContent=`Watchlist: ${watch.length} item${watch.length===1?"":"s"} saved in this browser`;
  $("#watchItems").innerHTML=watch.length?watch.map(n=>`<article class="card"><h3>${escapeHtml(n)}</h3><button type="button" data-remove="${escapeHtml(n)}">Remove</button></article>`).join(""):'<p class="empty">No cards saved yet. Add an item from the showcase above.</p>';
 }
 $("#catalogue").addEventListener("click",e=>{const n=e.target.dataset.add;if(n&&!watch.includes(n)){watch.push(n);persistWatch();renderWatch();updateDashboard();e.target.textContent="Added";$("#watchStatus").textContent="Saved on this device.";}});
