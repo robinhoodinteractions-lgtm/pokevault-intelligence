@@ -5,6 +5,8 @@
 - Calculated all chart values from actual catalogue records, saved watchlist items, and validated provider quotes; no market-wide counts or performance figures are inferred.
 - Added tests for category grouping, quote coverage, unmatched saved items, and empty states.
 - Kept historical returns and PokéVault-owned price history explicitly unavailable until a dated observation store is implemented.
+- Moved Netlify and CI to Node.js 22, added a restrictive Content Security Policy and transport/security headers, and tested the deployment configuration.
+- Added Android/Termux setup and release checklists for safe preview deployments and manual form/provider verification.
 
 ## 1.1.0 — research dashboard hardening
 
