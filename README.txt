@@ -16,13 +16,13 @@ Independent Pokémon TCG collector research workspace. Preserve the existing bla
 - The adapter refuses to select arbitrarily when more than one card variant has a valid raw Near Mint quote.
 - No accounts, cloud-synced watchlists, payment system, affiliate approval, database, or stored price history is implemented.
 
-## Development (Node.js 18+)
+## Development (Node.js 22+)
 
 Run in the repository root:
 
     npm run check
 
-This checks server syntax, static HTML/inline JavaScript, and automated tests.
+This checks server syntax, static HTML/inline JavaScript, automated tests, and the production build. Netlify publishes only `dist/` and applies security headers from `netlify.toml`.
 
 For a local preview, run:
 
