@@ -1,16 +1,17 @@
 {
-  "name": "pokevault",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
+  "name": "pokevault-intelligence",
+  "version": "1.1.2",
+  "private": true,
+  "description": "Independent Pokémon TCG collector research dashboard",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tests/*.test.js",
+    "check:server": "node --check netlify/functions/card-prices.js",
+    "check:html": "node scripts/check-html.js",
+    "check": "npm run check:server && npm run check:html && npm test && npm run build",
+    "build": "node scripts/build.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "UNLICENSED"
 }

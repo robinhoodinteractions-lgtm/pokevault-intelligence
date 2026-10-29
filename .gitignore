@@ -1,2 +1,12 @@
-# Local Netlify folder
-.netlify
+# Netlify local state
+.netlify/
+
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated test/build output
+node_modules/
+coverage/
+dist/
