@@ -15,6 +15,7 @@ Independent Pokémon TCG collector research workspace. Preserve the existing bla
 - Provider 7/30/90-day trend percentages are shown only when Scrydex returns finite values. PokéVault does not store its own price history.
 - The adapter refuses to select arbitrarily when more than one card variant has a valid raw Near Mint quote.
 - No accounts, cloud-synced watchlists, payment system, affiliate approval, database, or stored price history is implemented.
+- Android/Termux setup: see `ANDROID_TERMUX_SETUP.md`. Launch requirements and verification gates: see `RELEASE_CHECKLIST.md`.
 
 ## Development (Node.js 22+)
 
