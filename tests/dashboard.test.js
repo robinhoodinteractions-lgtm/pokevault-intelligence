@@ -103,3 +103,28 @@ test('watchlist persistence reports storage failures and deduplicates saved reco
   assert.match(html, /Added for this page only; browser storage is unavailable/);
   assert.match(html, /\[\.\.\.new Set\(saved\.filter/);
 });
+
+test('watchlist CSV includes catalogue metadata and only valid quote snapshots', () => {
+  const start = html.indexOf('function buildWatchCsv(records,savedItems,quoteMap){');
+  const end = html.indexOf('\n$("#exportWatch")', start);
+  assert.notEqual(start, -1, 'CSV builder should exist');
+  assert.notEqual(end, -1, 'CSV builder boundary should exist');
+  const context = {
+    hasUsableQuote(price) {
+      return !!price && typeof price.amount === 'number' && Number.isFinite(price.amount) &&
+        price.amount >= 0 && typeof price.currency === 'string' && /^[A-Z]{3}$/.test(price.currency);
+    }
+  };
+  vm.runInNewContext(html.slice(start, end) + '\nthis.buildWatchCsv = buildWatchCsv;', context);
+  const csv = context.buildWatchCsv(
+    [{ id: 'base1-4', name: 'Charizard', set: 'Base Set', number: '4/102', category: 'Vintage · holo' }],
+    ['Charizard — Base Set 4/102', 'Custom "study"'],
+    { 'base1-4': { amount: 12.5, currency: 'USD', basis: 'Provider, raw market estimate', source: 'Scrydex', condition: 'NM', variant: 'unlimitedHolofoil', checked_at: '2026-10-29T00:00:00.000Z' } }
+  );
+  assert.equal(csv.split('\r\n').length, 3);
+  assert.match(csv, /"price_amount","currency","price_basis","source","condition","variant","retrieved_at"/);
+  assert.match(csv, /"12\.5","USD","Provider, raw market estimate","Scrydex","NM","unlimitedHolofoil","2026-10-29T00:00:00\.000Z"/);
+  assert.match(csv, /"Custom ""study"""/);
+  const rows = csv.split('\r\n');
+  assert.match(rows[2], /"Custom ""study""","","","","","","","","","","",""/);
+});
