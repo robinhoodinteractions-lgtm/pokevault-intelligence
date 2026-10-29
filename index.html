@@ -213,7 +213,16 @@ function renderWatch(){
 $("#catalogue").addEventListener("click",e=>{const button=e.target.closest("[data-add]"),n=button&&button.dataset.add;if(!n)return;if(watch.includes(n)){ $("#watchStatus").textContent="Already saved to your shortlist.";return;}if(watch.length>=500){$("#watchStatus").textContent="Your shortlist has reached the 500-item safety limit.";return;}watch.push(n);const stored=persistWatch();renderWatch();updateDashboard();renderCatalogue();$("#watchStatus").textContent=stored?"Saved on this device.":"Added for this page only; browser storage is unavailable, so it may not persist.";});
 $("#watchItems").addEventListener("click",e=>{const button=e.target.closest("[data-remove]"),n=button&&button.dataset.remove;if(n){watch=watch.filter(x=>x!==n);const stored=persistWatch();renderWatch();updateDashboard();$("#watchStatus").textContent=stored?"Removed from shortlist.":"Removed for this page only; browser storage is unavailable.";}});
 $("#clearWatch").addEventListener("click",()=>{watch=[];const stored=persistWatch();renderWatch();updateDashboard();$("#watchStatus").textContent=stored?"Shortlist cleared.":"Shortlist cleared for this page only; browser storage is unavailable.";});
-$("#exportWatch").addEventListener("click",()=>{if(!watch.length){$("#watchStatus").textContent="Add at least one item before exporting.";return;}const csv="item\r\n"+watch.map(x=>'"'+x.replace(/"/g,'""')+'"').join("\r\n");const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="pokevault-shortlist.csv";a.click();URL.revokeObjectURL(url);$("#watchStatus").textContent="Shortlist CSV exported.";});
+function buildWatchCsv(records,savedItems,quoteMap){
+ const header=["item","card_id","name","set","number","category","price_amount","currency","price_basis","source","condition","variant","retrieved_at"];
+ const rows=savedItems.map(item=>{
+  const card=records.find(c=>item===c.name+" — "+c.set+" "+c.number);
+  const quote=card?quoteMap[card.id]:null,valid=hasUsableQuote(quote);
+  return [item,card?card.id:"",card?card.name:"",card?card.set:"",card?card.number:"",card?card.category:"",valid?quote.amount:"",valid?quote.currency:"",valid?(quote.basis||"Provider market estimate"):"",valid?(quote.source||""):"",valid?(quote.condition||""):"",valid?(quote.variant||""):"",valid?(quote.checked_at||""):""];
+ });
+ return [header,...rows].map(row=>row.map(value=>'"'+String(value==null?"":value).replace(/"/g,'""')+'"').join(",")).join("\\r\\n");
+}
+$("#exportWatch").addEventListener("click",()=>{if(!watch.length){$("#watchStatus").textContent="Add at least one item before exporting.";return;}const csv=buildWatchCsv(cards,watch,quotes);const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="pokevault-shortlist.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$("#watchStatus").textContent="Shortlist CSV exported with current catalogue details and any verified quote snapshot.";});
 $("#search").addEventListener("input",renderCatalogue);$("#sort").addEventListener("change",renderCatalogue);$("#categoryFilter").addEventListener("change",renderCatalogue);$("#priceFilter").addEventListener("change",renderCatalogue);
 $("#year").textContent=new Date().getFullYear();renderCatalogue();renderWatch();updateDashboard();loadPrices();
 function submitNativeFallback(form,status){
