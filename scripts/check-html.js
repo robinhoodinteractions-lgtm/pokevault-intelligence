@@ -16,6 +16,6 @@ for (const [, attrs, body] of scripts) {
   inlineCount++;
 }
 for (const id of ['dashboard','market','catalogue','categoryFilter','priceFilter','watchItems','contactForm','formStatus']) {
-  if (!new RegExp('id=["\\']' + id + '["\\']').test(html)) throw new Error('Missing required element: ' + id);
+  if (!html.includes('id="' + id + '"') && !html.includes("id='" + id + "'")) throw new Error('Missing required element: ' + id);
 }
 console.log('HTML structure and ' + inlineCount + ' inline script(s) passed syntax checks.');
