@@ -17,3 +17,5 @@ Official documentation:
 Scrydex documents raw price records with a numeric `market`, three-letter currency and condition (NM, LP, MP, HP or DM). The current dashboard intentionally displays only raw Near Mint quotes and labels the underlying provider timestamp as unavailable because the documented raw price object does not specify a per-quote observation timestamp. `checked_at` is the time PokéVault retrieved the response, not the date the provider market estimate was calculated.
 
 Before enabling production pricing, confirm your plan/credits, current provider terms, and that these quote fields are returned for the account's plan.
+
+The adapter refuses to select an arbitrary variant when multiple variants return valid raw NM quotes. In that case, the card remains without a displayed quote until a variant-specific mapping is implemented and verified.
