@@ -73,3 +73,33 @@ test('research analytics are visible, derived, and scoped to the local catalogue
     assert.equal(result.watchlistMatched, 0);
   });
 });
+
+test('watchlist persistence reports storage failures and deduplicates saved records', () => {
+  const start = html.indexOf('function persistWatch(){');
+  const end = html.indexOf('\nfunction hasUsableQuote', start);
+  assert.notEqual(start, -1, 'persistence helper should exist');
+  assert.notEqual(end, -1, 'persistence helper boundary should exist');
+  const source = html.slice(start, end) + '\nthis.persistWatch = persistWatch;';
+  const saved = [];
+  const successContext = {
+    watch: ['Charizard — Base Set 4/102'],
+    localStorage: { setItem: (key, value) => saved.push({ key, value }) },
+    $: () => ({ textContent: '' })
+  };
+  vm.runInNewContext(source, successContext);
+  assert.equal(successContext.persistWatch(), true);
+  assert.equal(saved[0].key, 'pokevault-watchlist-v1');
+  assert.deepEqual(JSON.parse(saved[0].value), ['Charizard — Base Set 4/102']);
+
+  const failureStatus = { textContent: '' };
+  const failureContext = {
+    watch: [],
+    localStorage: { setItem: () => { throw new Error('quota exceeded'); } },
+    $: () => failureStatus
+  };
+  vm.runInNewContext(source, failureContext);
+  assert.equal(failureContext.persistWatch(), false);
+  assert.match(failureStatus.textContent, /storage is unavailable/i);
+  assert.match(html, /Added for this page only; browser storage is unavailable/);
+  assert.match(html, /\[\.\.\.new Set\(saved\.filter/);
+});
