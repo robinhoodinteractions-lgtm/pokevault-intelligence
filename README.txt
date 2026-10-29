@@ -8,11 +8,11 @@ Independent Pokémon TCG collector research workspace. Preserve the existing bla
 - Responsive single-page interface with a curated card research catalogue.
 - Research dashboard charts for curated catalogue categories, current valid quote coverage, and the user's local watchlist; these are record counts, not market-wide metrics or returns.
 - Client-side search, category and quote-availability filters, and sorting.
-- Watchlist saved in this browser's localStorage with remove, clear and CSV export.
+- Watchlist saved in this browser's localStorage with remove, clear and research-ready CSV export (catalogue metadata plus any currently verified provider quote snapshot; unavailable values stay blank).
 - Netlify Function adapter for Scrydex raw Near Mint market estimates. It is server-side and does not expose API credentials to browser code.
 - Pricing remains unavailable until SCRYDEX_API_KEY and SCRYDEX_TEAM_ID are configured in Netlify. No demo prices are displayed.
 - Inquiry form still uses the project's existing Formspree endpoint. Browser acceptance is not proof of email delivery; test and confirm in the provider dashboard.
-- Provider 7/30/90-day trend percentages are shown only when Scrydex returns finite values. PokéVault does not store its own price history.
+- Provider 7/30/90-day trend percentages are shown only when Scrydex returns finite values. PokéVault does not store its own price history. The page links to official pricing/variant documentation and explicitly separates retrieval time from the underlying quote date.
 - The adapter refuses to select arbitrarily when more than one card variant has a valid raw Near Mint quote.
 - No accounts, cloud-synced watchlists, payment system, affiliate approval, database, or stored price history is implemented.
 - Android/Termux setup: see `ANDROID_TERMUX_SETUP.md`. Launch requirements and verification gates: see `RELEASE_CHECKLIST.md`.
