@@ -11,6 +11,7 @@ Independent Pokémon TCG collector research workspace. Preserve the existing bla
 - Netlify Function adapter for Scrydex raw Near Mint market estimates. It is server-side and does not expose API credentials to browser code.
 - Pricing remains unavailable until SCRYDEX_API_KEY and SCRYDEX_TEAM_ID are configured in Netlify. No demo prices are displayed.
 - Inquiry form still uses the project's existing Formspree endpoint. Browser acceptance is not proof of email delivery; test and confirm in the provider dashboard.
+- Provider 7/30/90-day trend percentages are shown only when Scrydex returns finite values. PokéVault does not store its own price history.
 - No accounts, cloud-synced watchlists, payment system, affiliate approval, database, or stored price history is implemented.
 
 ## Development (Node.js 18+)
