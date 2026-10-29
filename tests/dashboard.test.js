@@ -11,7 +11,7 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 test('research analytics are visible, derived, and scoped to the local catalogue', async (t) => {
   await t.test('dashboard includes catalogue, quote coverage, and watchlist breakdowns', () => {
     for (const id of ['researchAnalytics', 'catalogueCategoryAnalytics', 'quoteCoverageAnalytics', 'watchCategoryAnalytics', 'watchAnalyticsNote']) {
-      assert.match(html, new RegExp('id=["\\']' + id + '["\\']'), 'missing analytics element ' + id);
+      assert.ok(html.includes('id="' + id + '"') || html.includes("id='" + id + "'"), 'missing analytics element ' + id);
     }
     assert.match(html, /Counts describe this curated catalogue only/);
     assert.match(html, /no valuation or historical performance is calculated/i);
