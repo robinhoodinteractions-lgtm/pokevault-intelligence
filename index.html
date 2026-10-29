@@ -220,7 +220,7 @@ function buildWatchCsv(records,savedItems,quoteMap){
   const quote=card?quoteMap[card.id]:null,valid=hasUsableQuote(quote);
   return [item,card?card.id:"",card?card.name:"",card?card.set:"",card?card.number:"",card?card.category:"",valid?quote.amount:"",valid?quote.currency:"",valid?(quote.basis||"Provider market estimate"):"",valid?(quote.source||""):"",valid?(quote.condition||""):"",valid?(quote.variant||""):"",valid?(quote.checked_at||""):""];
  });
- return [header,...rows].map(row=>row.map(value=>'"'+String(value==null?"":value).replace(/"/g,'""')+'"').join(",")).join("\\r\\n");
+ return [header,...rows].map(row=>row.map(value=>'"'+String(value==null?"":value).replace(/"/g,'""')+'"').join(",")).join("\r\n");
 }
 $("#exportWatch").addEventListener("click",()=>{if(!watch.length){$("#watchStatus").textContent="Add at least one item before exporting.";return;}const csv=buildWatchCsv(cards,watch,quotes);const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="pokevault-shortlist.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$("#watchStatus").textContent="Shortlist CSV exported with current catalogue details and any verified quote snapshot.";});
 $("#search").addEventListener("input",renderCatalogue);$("#sort").addEventListener("change",renderCatalogue);$("#categoryFilter").addEventListener("change",renderCatalogue);$("#priceFilter").addEventListener("change",renderCatalogue);
